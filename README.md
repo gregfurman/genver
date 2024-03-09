@@ -53,7 +53,7 @@ genver "$(go list -m -json all)"
 genver $(go list -m -json all)
 ```
 
-The generated code file will contain information of each package, defined as two `const` values per module imported, one for module's `Version` and `Path`, respectively. The generic naming of each constant provides information in the form `<PATH>_<DOMAIN>_<TYPE>`.
+The generated code file will contain information of each package, defined as two `const` values per module imported, one for module's `Version` and `Path`, respectively. The generic naming of each constant provides information in the form `<PATH>_<DOMAIN>_<TYPE>`. See this repo's[`version.gen.go`](./versions.gen.go) or the [CLI example](docs/cli/example/versions.gen.go).
 
 #### Example #1 `cloud.google.com/go/analytics@v0.12.0`:
 ```golang
@@ -125,3 +125,4 @@ Using protobuf@v1.31.0
 - Add makefile and github actions
 - Add more tests and documentation -- perhaps consolidate all code into single `internal` package
 - Look into using cobra and improve CLI docs
+- Perhaps add args to generated files 
