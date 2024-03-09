@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"log/slog"
 
@@ -23,6 +24,7 @@ func main() {
 	content, err := processArgs(args)
 	if err != nil {
 		slog.Error("failed to read data from stdin", slog.Any("error", err))
+		return
 	}
 
 	if err := run(content, *fout, *fpackage, *fvalidateProtoSyntax); err != nil {
@@ -34,21 +36,19 @@ func main() {
 }
 
 func processArgs(args []string) (string, error) {
-	var content string
-	if len(args) > 1 {
-		content = os.Args[1]
-	} else {
-		buf := &bytes.Buffer{}
-		n, err := io.Copy(buf, os.Stdin)
-		if err != nil {
-			return "", err
-		} else if n <= 1 {
-			return "", fmt.Errorf("no input found")
-		}
-		content = buf.String()
+	if len(args) > 0 {
+		return strings.Join(args, ""), nil
 	}
 
-	return content, nil
+	buf := &bytes.Buffer{}
+	n, err := io.Copy(buf, os.Stdin)
+	if err != nil {
+		return "", err
+	} else if n <= 1 {
+		return "", fmt.Errorf("no input found")
+	}
+
+	return buf.String(), nil
 }
 
 func run(data, out, pkg string, validateSyntax bool) error {

@@ -1,12 +1,13 @@
-# GenVer
+## About
 
-GenVer is a lightweight module that improves accessibility to Go dependencies information.
+GenVer is a tool that improves accessibility to your Go project's dependency information. GenVer comes in two flavours --  a [CLI](#command-line-interface) and an importable [package](#package).
+
 
 ## Installation
 
 CLI:
 ```shell
-go install github.com/gregfurman/genver/cmd/cli@latest
+go install github.com/gregfurman/genver/cmd/genver@latest
 ```
 
 Package:
@@ -21,6 +22,8 @@ GenVer comes in two flavours --  a [CLI](#command-line-interface) and an importa
 ### Command-line Interface
 The binary takes, as an argument, the full content of your Go modules in JSON form. This can easily be retrieved with `cmd/go` with the `go list -m -json all` command. See [Flags](#flags) for more options and CLI flags.
 
+### Example Usage
+
 #### Example #1: Bash piping
 ```shell
 go list -m -json all | genver 
@@ -32,9 +35,6 @@ genver "$(go list -m -json all)"
 ```
 
 The generated code file will contain information of each package, defined as two `const` values per module imported, one for module's `Version` and `Path`, respectively. The generic naming of each constant provides information in the form `<PATH>_<DOMAIN>_<TYPE>`.
-
-
-### Example Usage
 
 #### Example #1 `cloud.google.com/go/analytics@v0.12.0`:
 ```golang
