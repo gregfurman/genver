@@ -1,37 +1,56 @@
 ## About
 
-GenVer is a tool that improves accessibility to your Go project's dependency information. GenVer comes in two flavours --  a [CLI](#command-line-interface) and an importable [package](#package).
+GenVer is a tool that improves accessibility to your Go project's dependency information. GenVer comes in two flavours --  a [CLI](#command-line-interface) that generates code and an importable [package](#package) used to retrieve version information during runtime.
 
 
 ## Installation
-
-CLI:
+`genver` CLI:
 ```shell
 go install github.com/gregfurman/genver/cmd/genver@latest
 ```
 
-Package:
+`genver` package:
 ```shell
 go get github.com/gregfurman/genver
 ```
 
-## Usage
+## Command-line interface
 
-GenVer comes in two flavours --  a [CLI](#command-line-interface) and an importable [package](#package).
+The `genver` binary takes, as an argument, the full content of your Go modules in `JSON` form. This can easily be retrieved with `cmd/go` with the `go list -m -json all` command. See [Flags](#flags) for more options and CLI flags. See CLI implementation [example](docs/cli/example/) for a potential approach.
 
-### Command-line Interface
-The binary takes, as an argument, the full content of your Go modules in JSON form. This can easily be retrieved with `cmd/go` with the `go list -m -json all` command. See [Flags](#flags) for more options and CLI flags.
+### Usage
 
-### Example Usage
+```
+genver [options] required_json_module_dependencies
+options:
+    -out string
+        location of generated dependency information. (default "versions.gen.go")
+    -package string
+        package of generated dependency information. (default "genver")
+    -validate
+        if enabled, uses the Go AST parser to check if the generated file has valid syntax (default true)
+```
+
+#### Flags 
+All are optional and have reasonable defaults:
+* `--out`: directs the location of the generated code. (default `"versions.gen.go"`)
+* `--package`: names the package of the generated code. (default `"genver"`)
+* `--validate`: validate the generated file against the [Go AST parser](https://pkg.go.dev/go/parser#ParseFile) (default `true`)
+
 
 #### Example #1: Bash piping
 ```shell
-go list -m -json all | genver 
+go list -m -json all | genver
 ```
 
 #### Example #2: Read entire contents as string
 ```shell
 genver "$(go list -m -json all)"
+```
+
+#### Example #3: Pass multiline string
+```shell
+genver $(go list -m -json all)
 ```
 
 The generated code file will contain information of each package, defined as two `const` values per module imported, one for module's `Version` and `Path`, respectively. The generic naming of each constant provides information in the form `<PATH>_<DOMAIN>_<TYPE>`.
@@ -64,19 +83,13 @@ const (
 ```
 </details>
 
-#### Flags 
-All are optional and have reasonable defaults:
-* `--out`: directs the location of the generated code. (default `"versions.gen.go"`)
-* `--package`: names the package of the generated code. (default `"genver"`)
-* `--validate`: validate the generated file against the [Go AST parser](https://pkg.go.dev/go/parser#ParseFile) (default `true`)
-
-### Package
+## Package
 
 The package exposes a `NewDependencyVersionStore` function that returns a `*DependencyStore`. This will pull in dependencies from runtime and populate each module name and version into a [trie](https://en.wikipedia.org/wiki/Trie). This exposes the following methods:
 * `FindVersionFromPath(path string) any`: Pass in an arbitrary pathname and get its version as output (or `nil` if not found)
 * `FindVersionFromData(data any) any`: Pass in an arbitrary data type and the version of the module that imported it in get the module (or `nil` if not found)
 
-### Example Usage
+### Usage
 
 ```golang
 import (
@@ -111,3 +124,4 @@ Using protobuf@v1.31.0
 - Explain more on rationale behind creation
 - Add makefile and github actions
 - Add more tests and documentation -- perhaps consolidate all code into single `internal` package
+- Look into using cobra and improve CLI docs
