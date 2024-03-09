@@ -16,17 +16,25 @@ go get github.com/gregfurman/genver
 
 ## Usage
 
-GenVer comes in two flavours --  a CLI and importable package.
+GenVer comes in two flavours --  a [CLI](#command-line-interface) and an importable [package](#package).
 
 ### Command-line Interface
 The binary takes, as an argument, the full content of your Go modules in JSON form. This can easily be retrieved with `cmd/go` with the `go list -m -json all` command. See [Flags](#flags) for more options and CLI flags.
 
-The generated code file will contain information of each package, defined as two `const` values per module imported, one for module's `Version` and `Path`, respectively. The generic naming of each constant provides information in the form `<PATH>_<DOMAIN>_<TYPE>`. i.e  will be displayed as:
+#### Example #1: Bash piping
+```shell
+go list -m -json all | genver 
+```
+
+#### Example #2: Read entire contents as string
+```shell
+genver "$(go list -m -json all)"
+```
+
+The generated code file will contain information of each package, defined as two `const` values per module imported, one for module's `Version` and `Path`, respectively. The generic naming of each constant provides information in the form `<PATH>_<DOMAIN>_<TYPE>`.
 
 
-<details open>
-<summary>Example dependencies and their generated output</summary>
-<br>
+### Example Usage
 
 #### Example #1 `cloud.google.com/go/analytics@v0.12.0`:
 ```golang
@@ -56,21 +64,10 @@ const (
 ```
 </details>
 
-
-#### Example #1: Bash piping
-```shell
-go list -m -json all | genver 
-```
-
-#### Example #2: Read entire contents as string
-```shell
-genver "$(go list -m -json all)"
-```
-
 #### Flags 
 All are optional and have reasonable defaults:
-* `--out`: directs the location of the generated code. (default `"versions.gen.go"``)
-* `--package`: names the package of the generated code. (default `"genver"``)
+* `--out`: directs the location of the generated code. (default `"versions.gen.go"`)
+* `--package`: names the package of the generated code. (default `"genver"`)
 * `--validate`: validate the generated file against the [Go AST parser](https://pkg.go.dev/go/parser#ParseFile) (default `true`)
 
 ### Package
@@ -79,7 +76,35 @@ The package exposes a `NewDependencyVersionStore` function that returns a `*Depe
 * `FindVersionFromPath(path string) any`: Pass in an arbitrary pathname and get its version as output (or `nil` if not found)
 * `FindVersionFromData(data any) any`: Pass in an arbitrary data type and the version of the module that imported it in get the module (or `nil` if not found)
 
-#### TODO:
+### Example Usage
+
+```golang
+import (
+    "github.com/gregfurman/genver"
+    "google.golang.org/grpc/codes" // v1.59.0
+    "google.golang.org/protobuf/proto" // v1.31.0
+)
+
+func main() {
+    versionStore := genver.NewDependencyVersionStore()
+    
+    // Find the dependency version from a pathname
+    grpcVersion := versionStore.FindVersionFromPath("google.golang.org/grpc/codes")
+    fmt.Println("Using grpc@%s", grpcVersion)
+
+    // Find the module version from a dependency's attribute
+    // where proto.String is a signature to an exported function
+    pbVersion := versionStore.FindVersionFromData(proto.String)
+    fmt.Println("Using protobuf@%s", pbVersion)
+}
+```
+#### Expected output
+```shell
+Using grpc@v1.59.0
+Using protobuf@v1.31.0
+```
+
+## TODO:
 - Provide more code examples
 - Potentially fix installation guide
 - Give more rationale behind using a trie

@@ -29,14 +29,7 @@ func GenerateFromData(data, outPath, pkg string, mustValidate bool) error {
 		}
 	}
 
-	f, err := os.OpenFile(outPath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
-	if err != nil {
-		return err
-	}
-
-	defer f.Close()
-
-	if _, err := f.Write(tpl.Bytes()); err != nil {
+	if err := os.WriteFile(outPath, tpl.Bytes(), 0644); err != nil {
 		return err
 	}
 
