@@ -2,6 +2,23 @@
 
 GenVer is a tool that improves accessibility to your Go project's dependency information. GenVer comes in two flavours --  a [CLI](#command-line-interface) that generates code and an importable [package](#package) used to retrieve version information during runtime.
 
+### Why use this?
+This idea came about when a project I was working on required the precise version of each dependency be logged for auditing purposes. Following Go 1.18, this information because available at runtime using the `runtime/debug` or [`runtime/buildinfo`](https://tip.golang.org/doc/go1.18#debug_buildinfo) library. However, the data returned is not easily queryable and not performant to interact with.
+
+This can be useful:
+- If you need to know external dependency versions at runtime for auditing or logging purposes.
+- If you need to build tooling that requires precise dependency information at runtime.
+
+
+
+### Index
+- [Installation](#installation)
+- [Command-line Interface](#command-line-interface)
+    - [Usage](#usage)
+    - [Examples](#examples)
+- [Package](#package)
+    - [Usage](#usage-1)
+    - [Examples](#example)
 
 ## Installation
 `genver` CLI:
