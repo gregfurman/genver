@@ -17,7 +17,7 @@ func NewTrie[T any]() *Trie[T] {
 }
 
 func (n *Trie[T]) Put(key string, value T) {
-	parts := strings.FieldsFunc(key, func(r rune) bool { return r == '/' || r == '-' || r == '.' || r == '_' })
+	parts := strings.FieldsFunc(key, splitFn)
 
 	currentNode := n
 	for _, part := range parts {
@@ -34,7 +34,7 @@ func (n *Trie[T]) Put(key string, value T) {
 }
 
 func (n *Trie[T]) Get(key string) (*T, bool) {
-	parts := strings.FieldsFunc(key, func(r rune) bool { return r == '/' || r == '-' || r == '.' || r == '_' })
+	parts := strings.FieldsFunc(key, splitFn)
 
 	currentNode := n
 	for _, part := range parts {
@@ -48,7 +48,7 @@ func (n *Trie[T]) Get(key string) (*T, bool) {
 }
 
 func (n *Trie[T]) Match(key string) (*T, bool) {
-	parts := strings.FieldsFunc(key, func(r rune) bool { return r == '/' || r == '-' || r == '.' || r == '_' })
+	parts := strings.FieldsFunc(key, splitFn)
 
 	currentNode := n
 	for _, part := range parts {
@@ -68,3 +68,5 @@ func (n *Trie[T]) Match(key string) (*T, bool) {
 
 	return currentNode.value, true
 }
+
+func splitFn(r rune) bool { return r == '/' || r == '-' || r == '.' || r == '_' }

@@ -1,9 +1,10 @@
-package store
+package store_test
 
 import (
 	"testing"
 
 	"github.com/gregfurman/genver/internal/build"
+	"github.com/gregfurman/genver/pkg/store"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
@@ -33,7 +34,7 @@ func Test_Store_FindVersionFromPath(t *testing.T) {
 		"/pkg", "/pkg/service", "/pkg/service/generate_version",
 	}
 
-	s := NewStore(deps)
+	s := store.NewStore(deps)
 	for _, want := range deps {
 		if got := s.FindVersionFromPath(want.Path); got != want.Version {
 			t.Errorf("retrieved incorrect version for dependency '%s'. Got '%v', want '%s'", want.Path, got, want.Version)
@@ -72,7 +73,7 @@ func Test_Store_FindVersionFromData(t *testing.T) {
 		{pkgName: "golang.org/x/text/language", arg: language.Afrikaans, want: "v0.14.0"},
 	}
 
-	s := NewStore(deps)
+	s := store.NewStore(deps)
 	for _, test := range tests {
 		if got := s.FindVersionFromData(test.arg); got != test.want {
 			t.Errorf("retrieved incorrect version for dependency '%s'. Got '%v', want '%s'", test.pkgName, got, test.want)
