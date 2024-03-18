@@ -52,11 +52,11 @@ func (n *Trie[T]) Show() {
 func (n *Trie[T]) Match(key string) (*T, bool) {
 	currentNode := n
 	for _, c := range key {
-		if currentNode.value != nil {
-			return currentNode.value, true
-		}
-
 		if _, ok := currentNode.children[c]; !ok {
+			if currentNode.value != nil {
+				return currentNode.value, true
+			}
+
 			return nil, false
 		}
 
