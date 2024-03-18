@@ -11,6 +11,7 @@ import (
 func Test_Store_FindVersionFromPath(t *testing.T) {
 	deps := []build.DepInfo{
 		{Path: "github.com/aws/aws-sdk-go-v2", Version: "v1.25.2"},
+		{Path: "github.com/aws/aws-sdk-go", Version: "v1.25.1"},
 		{Path: "github.com/aws/smithy-go", Version: "v1.20.1"},
 		{Path: "github.com/davecgh/go-spew", Version: "v1.1.1"},
 		{Path: "github.com/google/go-cmp", Version: "v0.5.8"},

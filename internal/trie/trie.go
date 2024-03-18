@@ -1,28 +1,32 @@
 package trie
 
-import "fmt"
+import (
+	"strings"
+)
 
 type Trie[T any] struct {
-	children map[rune]*Trie[T]
+	children map[string]*Trie[T]
 	terminal bool
 	value    *T
 }
 
 func NewTrie[T any]() *Trie[T] {
 	return &Trie[T]{
-		children: make(map[rune]*Trie[T]),
+		children: make(map[string]*Trie[T]),
 	}
 }
 
 func (n *Trie[T]) Put(key string, value T) {
+	parts := strings.FieldsFunc(key, func(r rune) bool { return r == '/' || r == '-' || r == '.' || r == '_' })
+
 	currentNode := n
-	for _, c := range key {
-		if _, ok := currentNode.children[c]; !ok {
-			currentNode.children[c] = &Trie[T]{
-				children: make(map[rune]*Trie[T]),
+	for _, part := range parts {
+		if _, ok := currentNode.children[part]; !ok {
+			currentNode.children[part] = &Trie[T]{
+				children: make(map[string]*Trie[T]),
 			}
 		}
-		currentNode = currentNode.children[c]
+		currentNode = currentNode.children[part]
 	}
 
 	currentNode.value = &value
@@ -30,29 +34,25 @@ func (n *Trie[T]) Put(key string, value T) {
 }
 
 func (n *Trie[T]) Get(key string) (*T, bool) {
+	parts := strings.FieldsFunc(key, func(r rune) bool { return r == '/' || r == '-' || r == '.' || r == '_' })
+
 	currentNode := n
-	for _, c := range key {
-		if _, ok := currentNode.children[c]; !ok {
+	for _, part := range parts {
+		if _, ok := currentNode.children[part]; !ok {
 			return nil, false
 		}
-		currentNode = currentNode.children[c]
+		currentNode = currentNode.children[part]
 	}
 
 	return currentNode.value, true
 }
 
-func (n *Trie[T]) Show() {
-	currentNode := n
-	for k := range currentNode.children {
-		fmt.Printf("%s ", string(k))
-	}
-
-}
-
 func (n *Trie[T]) Match(key string) (*T, bool) {
+	parts := strings.FieldsFunc(key, func(r rune) bool { return r == '/' || r == '-' || r == '.' || r == '_' })
+
 	currentNode := n
-	for _, c := range key {
-		if _, ok := currentNode.children[c]; !ok {
+	for _, part := range parts {
+		if _, ok := currentNode.children[part]; !ok {
 			if currentNode.value != nil {
 				return currentNode.value, true
 			}
@@ -60,7 +60,7 @@ func (n *Trie[T]) Match(key string) (*T, bool) {
 			return nil, false
 		}
 
-		currentNode = currentNode.children[c]
+		currentNode = currentNode.children[part]
 	}
 	if currentNode.value == nil {
 		return nil, false
