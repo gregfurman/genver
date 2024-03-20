@@ -5,24 +5,71 @@ import (
 	"net/url"
 	"runtime/debug"
 	"strings"
+	"time"
 
 	"golang.org/x/net/publicsuffix"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
 
-type DepInfo struct {
-	Version string `json:"Version"`
-	Path    string `json:"Path"`
-	Name    string `json:"Name"`
-	Main    bool   `json:"Main"`
+type BuildInfo struct {
+	VersionInfo  VerInfo
+	Dependencies []DepInfo
 }
 
-func GetBuildInfoFromRuntime() []DepInfo {
-	info, _ := debug.ReadBuildInfo()
+type VerInfo struct {
+	Version    string
+	Revision   string
+	LastCommit time.Time
+	DirtyBuild bool
+}
 
+type DepInfo struct {
+	Version    string `json:"Version"`
+	Path       string `json:"Path"`
+	Name       string `json:"Name"`
+	Main       bool   `json:"Main"`
+	IsIndirect bool   `json:"Indirect"`
+}
+
+func GetBuildInfoFromRuntime() BuildInfo {
+	info, _ := debug.ReadBuildInfo()
+	return BuildInfo{
+		VersionInfo:  getVersionInfo(info.Main.Version, info.Settings),
+		Dependencies: getDependencyInfo(info.Deps),
+	}
+}
+
+func GetBuildInfoFromData(content string) BuildInfo {
+	info, _ := debug.ReadBuildInfo()
+	return BuildInfo{
+		VersionInfo:  getVersionInfo(info.Main.Version, info.Settings),
+		Dependencies: getDependencyInfoFromData(content),
+	}
+}
+
+func getVersionInfo(version string, settings []debug.BuildSetting) VerInfo {
+	var vers VerInfo = VerInfo{Version: version}
+	for _, setting := range settings {
+		if setting.Value == "" {
+			continue
+		}
+		switch setting.Key {
+		case "vcs.revision":
+			vers.Revision = setting.Value
+		case "vcs.time":
+			vers.LastCommit, _ = time.Parse(time.RFC3339, setting.Value)
+		case "vcs.modified":
+			vers.DirtyBuild = setting.Value == "true"
+		}
+	}
+
+	return vers
+}
+
+func getDependencyInfo(dependencies []*debug.Module) []DepInfo {
 	var deps []DepInfo
-	for _, dep := range info.Deps {
+	for _, dep := range dependencies {
 		if dep.Sum != "" {
 			deps = append(deps, DepInfo{Version: dep.Version, Path: dep.Path, Name: nameFromPath(dep.Path)})
 		}
@@ -31,19 +78,19 @@ func GetBuildInfoFromRuntime() []DepInfo {
 	return deps
 }
 
-func GetBuildInfoFromData(content string) []*DepInfo {
-	var deps []*DepInfo
+func getDependencyInfoFromData(content string) []DepInfo {
+	var deps []DepInfo
 
 	if err := json.Unmarshal([]byte(fmtJson(content)), &deps); err != nil {
 		return nil
 	}
 
-	var filteredDeps []*DepInfo
+	var filteredDeps []DepInfo
 	for _, dep := range deps {
 		if dep.Main || dep.Version == "" || dep.Path == "" {
 			continue
 		}
-		filteredDeps = append(filteredDeps, &DepInfo{Version: dep.Version, Path: dep.Path, Name: nameFromPath(dep.Path)})
+		filteredDeps = append(filteredDeps, DepInfo{Version: dep.Version, Path: dep.Path, Name: nameFromPath(dep.Path)})
 	}
 
 	return filteredDeps

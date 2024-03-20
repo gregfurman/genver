@@ -70,7 +70,7 @@ func Test_Store_FindVersionFromData(t *testing.T) {
 		want    string
 	}{
 		{pkgName: "golang.org/x/text/cases", arg: cases.Caser{}, want: "v0.14.0"},
-		{pkgName: "golang.org/x/text/language", arg: language.Afrikaans, want: "v0.14.0"},
+		{pkgName: "golang.org/x/text/language", arg: language.English, want: "v0.14.0"},
 	}
 
 	s := store.NewStore(deps)

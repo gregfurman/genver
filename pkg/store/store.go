@@ -23,7 +23,7 @@ func NewStore(deps []build.DepInfo) *DependencyStore {
 }
 
 func (s *DependencyStore) FindVersionFromPath(path string) any {
-	value, ok := s.dependencyTrie.Match(path)
+	value, ok := s.dependencyTrie.PrefixMatch(path)
 	if ok {
 		return *value
 	}
@@ -32,7 +32,7 @@ func (s *DependencyStore) FindVersionFromPath(path string) any {
 }
 
 func (s *DependencyStore) FindVersionFromData(data any) any {
-	value, ok := s.dependencyTrie.Match(reflect.TypeOf(data).PkgPath())
+	value, ok := s.dependencyTrie.PrefixMatch(reflect.TypeOf(data).PkgPath())
 	if ok {
 		return *value
 	}

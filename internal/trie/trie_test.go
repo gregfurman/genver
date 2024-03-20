@@ -36,14 +36,14 @@ func Benchmark_Store(b *testing.B) {
 	}
 }
 
-func Benchmark_Match(b *testing.B) {
+func Benchmark_PrefixMatch(b *testing.B) {
 	t := trie.NewTrie[string]()
 	for _, dep := range buildDeps {
 		t.Put(dep.Path, dep.Version)
 	}
 	for n := 0; n < b.N; n++ {
 		for _, dep := range buildDeps {
-			t.Match(dep.Path)
+			t.PrefixMatch(dep.Path)
 		}
 	}
 }
