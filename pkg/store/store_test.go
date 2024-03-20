@@ -10,7 +10,7 @@ import (
 )
 
 func Test_Store_FindVersionFromPath(t *testing.T) {
-	deps := []build.DepInfo{
+	deps := []*build.DepInfo{
 		{Path: "github.com/aws/aws-sdk-go-v2", Version: "v1.25.2"},
 		{Path: "github.com/aws/aws-sdk-go", Version: "v1.25.1"},
 		{Path: "github.com/aws/smithy-go", Version: "v1.20.1"},
@@ -60,7 +60,7 @@ func Test_Store_FindVersionFromPath(t *testing.T) {
 }
 
 func Test_Store_FindVersionFromData(t *testing.T) {
-	deps := []build.DepInfo{
+	deps := []*build.DepInfo{
 		{Path: "golang.org/x/text", Version: "v0.14.0"},
 	}
 

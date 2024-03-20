@@ -12,13 +12,17 @@ func GenerateFromData(data, outPath, pkg string, mustValidate bool) error {
 	if err != nil {
 		return err
 	}
+
+	buildInfo := GetBuildInfoFromData(data)
 	var tpl bytes.Buffer
 	if err := tmpl.Execute(&tpl, struct {
-		Package      string
-		Dependencies []*DepInfo
+		Package            string
+		Dependencies       []*DepInfo
+		VersionInformation VerInfo
 	}{
-		Package:      pkg,
-		Dependencies: GetBuildInfoFromData(data),
+		Package:            pkg,
+		Dependencies:       buildInfo.Dependencies,
+		VersionInformation: buildInfo.VersionInfo,
 	}); err != nil {
 		return err
 	}
