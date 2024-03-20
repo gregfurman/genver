@@ -20,9 +20,9 @@ func GenerateFromData(data, outPath, pkg string, mustValidate bool) error {
 		GenVerVersion string
 		Dependencies  []DepInfo
 	}{
-		Package:            pkg,
-		Dependencies:       buildInfo.Dependencies,
-		VersionInformation: buildInfo.VersionInfo,
+		Package:       pkg,
+		Dependencies:  buildInfo.Dependencies,
+		GenVerVersion: buildInfo.VersionInfo.Version,
 	}); err != nil {
 		return err
 	}
